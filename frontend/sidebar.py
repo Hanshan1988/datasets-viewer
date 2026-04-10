@@ -11,7 +11,7 @@ def render_sidebar():
     with st.sidebar:
         st.markdown("### 📦 Data Source")
         data_source = st.radio(
-            "Source", ["HuggingFace Dataset", "Upload File (CSV / JSONL)"],
+            "Source", ["HuggingFace Dataset", "Upload File (CSV / JSONL / JSON)"],
             index=0, horizontal=True,
         )
 
@@ -54,7 +54,10 @@ def render_sidebar():
                             hfapi_revision = s.get("revision")
                             break
         else:
-            uploaded_file = st.file_uploader("Upload a CSV or JSONL file", type=["csv", "jsonl"])
+            uploaded_file = st.file_uploader(
+                "Upload a CSV, JSONL, or JSON file (array of objects)",
+                type=["csv", "jsonl", "json"],
+            )
             if uploaded_file:
                 st.success(f"📄 {uploaded_file.name} ({uploaded_file.size / 1024:.1f} KB)", icon="✅")
 

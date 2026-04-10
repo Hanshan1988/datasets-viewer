@@ -1,11 +1,13 @@
 """
-Data loading functions for HuggingFace datasets, local CSV/JSONL files.
+Data loading functions for HuggingFace datasets, local CSV/JSONL/JSON files.
 
 Primary:   datasets library (streaming mode)
 Fallback:  huggingface_hub (HfApi + hf_hub_download) + pandas parquet reader
 """
 
+import json
 import os
+import random
 import streamlit as st
 from huggingface_hub import HfApi, hf_hub_download
 from datasets import load_dataset, get_dataset_config_names, get_dataset_split_names
@@ -79,18 +81,66 @@ def get_configs_and_splits(dataset_id: str):
     raise RuntimeError("Could not discover configs/splits via streaming or HfApi.")
 
 
-# ── Local file loading (CSV / JSONL) ───────────────────────────────────────────
+# ── Local file loading (CSV / JSONL / JSON array) ──────────────────────────────
+
+def _col_info_from_dict_rows(rows: list) -> list:
+    """Build column schema from a list of dict rows (name + inferred type)."""
+    if not rows:
+        return []
+    all_keys = set()
+    for r in rows:
+        all_keys.update(r.keys())
+    col_info = []
+    for name in sorted(all_keys):
+        sample = None
+        for r in rows:
+            if name in r and r[name] is not None:
+                sample = r[name]
+                break
+        tname = type(sample).__name__ if sample is not None else "NoneType"
+        col_info.append({"name": name, "type": tname})
+    return col_info
+
 
 def load_rows_from_upload(uploaded_file, num_rows: int, mode: str, seed: int = 42):
-    """Load rows from an uploaded CSV or JSONL file."""
+    """Load rows from an uploaded CSV, JSONL, or JSON file (array of objects)."""
     import pandas as pd
+
     name = uploaded_file.name.lower()
     if name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
     elif name.endswith(".jsonl"):
         df = pd.read_json(uploaded_file, lines=True)
+    elif name.endswith(".json"):
+        uploaded_file.seek(0)
+        text = uploaded_file.read().decode("utf-8")
+        data = json.loads(text)
+        if not isinstance(data, list):
+            raise ValueError(
+                "JSON file must be an array of objects, e.g. [{...}, {...}]. "
+                f"Got {type(data).__name__}."
+            )
+        if not data:
+            raise ValueError("JSON array is empty.")
+        rows_raw = []
+        for i, item in enumerate(data):
+            if not isinstance(item, dict):
+                raise ValueError(
+                    f"Each array element must be a JSON object; index {i} is {type(item).__name__}."
+                )
+            rows_raw.append(dict(item))
+        total = len(rows_raw)
+        if mode == "random" and total > num_rows:
+            rng = random.Random(seed)
+            picked = rng.sample(rows_raw, k=min(num_rows, total))
+        else:
+            picked = rows_raw[:num_rows]
+        col_info = _col_info_from_dict_rows(picked)
+        return picked, col_info
     else:
-        raise ValueError(f"Unsupported file type: {uploaded_file.name}. Use .csv or .jsonl")
+        raise ValueError(
+            f"Unsupported file type: {uploaded_file.name}. Use .csv, .jsonl, or .json"
+        )
 
     total = len(df)
     if mode == "random" and total > num_rows:

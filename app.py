@@ -5,6 +5,7 @@ and reasoning steps rendered in a user-friendly format.
 Data loading:
   Primary:   datasets library (streaming mode)
   Fallback:  huggingface_hub (HfApi + hf_hub_download) + pandas parquet reader
+  Local:     CSV, JSONL, or JSON array of objects
 
 pip install streamlit datasets huggingface-hub pandas pyarrow python-dotenv
 """

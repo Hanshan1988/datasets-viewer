@@ -16,13 +16,13 @@ def render_hero():
     """Render the hero banner and HF token status."""
     st.markdown(
         '<div class="hero-block"><h1>🔬 LLM Trace Viewer</h1>'
-        '<p>Browse HuggingFace datasets or local CSV / JSONL files with nested chat traces, '
+        '<p>Browse HuggingFace datasets or local CSV / JSONL / JSON (array) files with nested chat traces, '
         'tool calls, and reasoning steps — rendered beautifully.</p></div>',
         unsafe_allow_html=True,
     )
     st.caption(
         f"{'🔑 HF_TOKEN loaded' if HF_TOKEN else '🔓 No HF_TOKEN (public datasets only)'}  ·  "
-        f"HuggingFace (streaming → HfApi) + CSV / JSONL upload"
+        f"HuggingFace (streaming → HfApi) + CSV / JSONL / JSON upload"
     )
 
 
@@ -145,7 +145,7 @@ def render_data():
             '<div style="font-size:18px;font-weight:600;color:#475569;margin-bottom:8px">'
             'No data loaded yet</div>'
             '<div style="font-size:14px;max-width:400px;margin:0 auto;line-height:1.6">'
-            'Enter a HuggingFace dataset ID or upload a CSV / JSONL file in the sidebar, '
+            'Enter a HuggingFace dataset ID or upload a CSV, JSONL, or JSON file in the sidebar, '
             'then click <strong>Load Data</strong> to start exploring.</div></div>',
             unsafe_allow_html=True,
         )
