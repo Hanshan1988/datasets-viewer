@@ -1,6 +1,6 @@
 # 🔬 LLM Trace Viewer
 
-Browse HuggingFace datasets or local CSV/JSONL files with nested chat traces, tool calls, and reasoning steps — rendered beautifully in Streamlit.
+Browse HuggingFace datasets or local **CSV**, **JSONL** (one JSON object per line), or **JSON** (a single array of objects, `[{...}, {...}]`) with nested chat traces, tool calls, and reasoning steps — rendered beautifully in Streamlit.
 
 ## Setup
 
@@ -38,7 +38,7 @@ streamlit run app.py
 ```
 ├── app.py                 # Entry point for modular version
 ├── backend/
-│   ├── data_loader.py      # HF dataset discovery, streaming, parquet fallback, CSV/JSONL upload
+│   ├── data_loader.py      # HF dataset discovery, streaming, parquet fallback, CSV/JSONL/JSON upload
 │   └── rendering.py        # HTML rendering for chat messages, JSON, tool calls, row cards
 ├── frontend/
 │   ├── sidebar.py          # Sidebar UI: data source, config/split pickers, sampling
