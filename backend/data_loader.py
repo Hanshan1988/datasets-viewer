@@ -115,10 +115,19 @@ def load_rows_from_upload(uploaded_file, num_rows: int, mode: str, seed: int = 4
         uploaded_file.seek(0)
         text = uploaded_file.read().decode("utf-8")
         data = json.loads(text)
+        if isinstance(data, dict):
+            first_key = next(iter(data))
+            value = data[first_key]
+            if not isinstance(value, list):
+                raise ValueError(
+                    f"Expected the value of the first key '{first_key}' to be a list, "
+                    f"got {type(value).__name__}."
+                )
+            data = value
         if not isinstance(data, list):
             raise ValueError(
-                "JSON file must be an array of objects, e.g. [{...}, {...}]. "
-                f"Got {type(data).__name__}."
+                "JSON file must be an array of objects or an object whose first key "
+                f"contains a list. Got {type(data).__name__}."
             )
         if not data:
             raise ValueError("JSON array is empty.")
