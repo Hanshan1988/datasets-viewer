@@ -11,7 +11,7 @@ def render_sidebar():
     with st.sidebar:
         st.markdown("### 📦 Data Source")
         data_source = st.radio(
-            "Source", ["HuggingFace Dataset", "Upload File (CSV / JSONL / JSON)"],
+            "Source", ["Upload File (CSV / JSONL / JSON)", "HuggingFace Dataset"],
             index=0, horizontal=True,
         )
 
